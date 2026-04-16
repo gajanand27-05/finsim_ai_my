@@ -11,12 +11,19 @@ const SettingsPage = () => <div className="container mt-8"><h1 className="text-2
 
 function App() {
   const initData = useStore(state => state.initData);
+  const isServerOnline = useStore(state => state.isServerOnline);
   
   useEffect(() => {
      initData();
   }, [initData]);
+
   return (
     <Router>
+      {!isServerOnline && (
+        <div className="bg-red-500/20 border-b border-red-500/50 text-red-500 font-semibold text-center py-2 px-4 shadow-[0_0_15px_rgba(239,68,68,0.3)]">
+          ⚠️ Server is offline. Please try later. AI Intelligence degraded.
+        </div>
+      )}
       <nav style={{ borderBottom: '1px solid var(--border-light)', padding: '16px 0', background: 'var(--bg-panel)' }}>
         <div className="container flex justify-between items-center">
           <div className="flex items-center gap-2">

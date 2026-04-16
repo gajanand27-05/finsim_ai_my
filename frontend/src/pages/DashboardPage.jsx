@@ -12,7 +12,8 @@ export default function DashboardPage() {
   const fetchDashboard = async () => {
     setLoading(true);
     try {
-      const resp = await fetch('http://localhost:5000/api/dashboard');
+      const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+      const resp = await fetch(`${API_BASE}/api/dashboard`);
       if (resp.ok) {
         const json = await resp.json();
         setData(json);
@@ -29,7 +30,8 @@ export default function DashboardPage() {
 
   const loadDemoSms = async () => {
     try {
-      await fetch('http://localhost:5000/api/load-demo-sms', { method: 'POST', body: JSON.stringify({}) });
+      const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+      await fetch(`${API_BASE}/api/load-demo-sms`, { method: 'POST', body: JSON.stringify({}) });
       fetchDashboard();
     } catch (err) {
       console.error("Demo failed");

@@ -7,6 +7,17 @@ export const useStore = create((set, get) => ({
   budgets: [],
   alerts: [],
   loading: true,
+  isServerOnline: true,
+  
+  checkServerHealth: async () => {
+    try {
+      const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+      const res = await fetch(`${API_BASE}/api/health`, { method: 'GET'});
+      set({ isServerOnline: res.ok });
+    } catch (e) {
+      set({ isServerOnline: false });
+    }
+  },
   
   initData: async () => {
     set({ loading: true });
@@ -33,6 +44,10 @@ export const useStore = create((set, get) => ({
         get().processPreSpendWarning(newTxn);
       })
       .subscribe();
+      
+    // Start Heartbeat
+    setInterval(() => get().checkServerHealth(), 5000);
+    get().checkServerHealth();
       
     set({ loading: false });
   },

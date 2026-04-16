@@ -6,12 +6,12 @@ export const parseSMS = (rawText) => {
   const patterns = {
     // HDFC, SBI, ICICI: "Rs.1,234.00 debited from A/c XX1234"
     amount: /(?:rs\.?|inr|₹)\s?([0-9,]+(?:\.[0-9]{2})?)/i,
-    
+
     // "at SWIGGY FOOD" / "to AMAZON" / "merchant: Zomato" / "VPA: id@upi"
     merchant: /(?:at|to|merchant[:\s]+|for|vpa[:\s]+|info[:\s]+)\s*([A-Z0-9&.\-_ ]+?)(?:\s+on|\s+ref|\.|$)/i,
-    
+
     // "on 14-Apr-25" / "15/04/2025" / "12-05-2026"
-    date: /(\d{1,2}[-\/]\w{2,3}[-\/]\d{2,4}|\d{1,2}[-\/]\d{1,2}[-\/]\d{2,4})/i,
+    date: /(\d{1,2}[-/]\w{2,3}[-/]\d{2,4}|\d{1,2}[-/]\d{1,2}[-/]\d{2,4})/i,
     
     // Debit or Credit classification
     type: /(debited|spent|withdrawn|paid|sent to)/i,

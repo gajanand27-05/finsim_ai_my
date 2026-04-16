@@ -14,7 +14,7 @@ export const useStore = create((set, get) => ({
       const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:5000';
       const res = await fetch(`${API_BASE}/api/health`, { method: 'GET'});
       set({ isServerOnline: res.ok });
-    } catch (e) {
+    } catch {
       set({ isServerOnline: false });
     }
   },

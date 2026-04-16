@@ -33,7 +33,7 @@ export default function DashboardPage() {
       const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:5000';
       await fetch(`${API_BASE}/api/load-demo-sms`, { method: 'POST', body: JSON.stringify({}) });
       fetchDashboard();
-    } catch (err) {
+    } catch {
       console.error("Demo failed");
     }
   };

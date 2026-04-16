@@ -27,7 +27,7 @@ export default function AIChatPanel() {
       const data = await response.json();
       
       setMessages(prev => [...prev, { role: 'ai', text: data.reply }]);
-    } catch (error) {
+    } catch {
       setMessages(prev => [...prev, { role: 'ai', text: 'Sorry, I am having trouble connecting to the network right now.' }]);
     }
     setLoading(false);

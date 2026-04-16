@@ -1,0 +1,35 @@
+{
+  "project_name": "FinTrack Pro (Minimal Viable Product)",
+  "objective": "To build a secure, basic personal finance tracker demonstrating core CRUD operations for transactions.",
+  "scope_phases": [
+    {
+      "phase": "Phase 1: MVP Core (Hackathon Focus)",
+      "duration_estimate": "24-48 hours (Hackathon)",
+      "features": [
+        {"id": 1.1, "name": "User Authentication", "priority": "High", "description": "Secure signup and login."},
+        {"id": 1.2, "name": "Manual Transaction Entry", "priority": "High", "description": "Ability to manually input amount, date, description, and category."},
+        {"id": 1.3, "name": "Category Management", "priority": "Medium", "description": "Predefined list of categories (Groceries, Bills, Income, etc.)."},
+        {"id": 1.4, "name": "Basic Dashboard & Visualization", "priority": "High", "description": "A main view showing total income vs. expenses for the current month, using a simple chart."}
+      ],
+      "technologies_suggested": ["React/Next.js (Frontend)", "Node.js/Express (Backend)", "PostgreSQL/MongoDB (Database)"]
+    },
+    {
+      "phase": "Phase 2: Feature Expansion (V1.0)",
+      "duration_estimate": "2-4 Weeks",
+      "features": [
+        {"id": 2.1, "name": "Simple Budgeting", "priority": "High", "description": "Allow users to set a budget limit per category."},
+        {"id": 2.2, "name": "Data Filtering & Search", "priority": "Medium", "description": "Filter transactions by date range or keyword."},
+        {"id": 2.3, "name": "Basic Reporting", "priority": "Medium", "description": "Monthly summary reports."}
+      ]
+    },
+    {
+      "phase": "Phase 3: Advanced Automation (V2.0+)",
+      "duration_estimate": "3+ Months",
+      "features": [
+        {"id": 3.1, "name": "Bank Synchronization", "priority": "Critical", "description": "Integration with services like Plaid for automatic data import."},
+        {"id": 3.2, "name": "Advanced AI/Forecasting", "priority": "High", "description": "Predictive modeling to warn users of budget overruns."},
+        {"id": 3.3, "name": "Expense Sharing", "priority": "Medium", "description": "Functionality to split shared bills with other users."}
+      ]
+    }
+  ]
+}

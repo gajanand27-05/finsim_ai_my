@@ -1,24 +1,35 @@
--- Supabase Schema Initialization for FINSIM AI+ Hackathon MVP
+-- Migration: Extending the Hackathon Schema for AI Integration
 
-CREATE TABLE transactions (
+-- 1. Alter Existing Tables
+ALTER TABLE transactions 
+  ADD COLUMN IF NOT EXISTS user_id UUID,
+  ADD COLUMN IF NOT EXISTS source TEXT DEFAULT 'demo_sms',
+  ADD COLUMN IF NOT EXISTS confidence NUMERIC(3,2) DEFAULT 1.0;
+
+ALTER TABLE budgets
+  ADD COLUMN IF NOT EXISTS user_id UUID,
+  ADD COLUMN IF NOT EXISTS month TEXT;
+
+-- 2. Create New Tables
+CREATE TABLE IF NOT EXISTS ai_insights (
   id SERIAL PRIMARY KEY,
-  amount DECIMAL(10,2) NOT NULL,
-  merchant TEXT NOT NULL,
-  category TEXT,
-  date TIMESTAMP DEFAULT NOW(),
-  type TEXT DEFAULT 'debit',
+  user_id UUID,
+  type TEXT,              -- 'insight', 'warning', 'prediction'
+  message TEXT,
+  risk_level TEXT,        -- 'low', 'medium', 'high'
   created_at TIMESTAMP DEFAULT NOW()
 );
 
-CREATE TABLE budgets (
+CREATE TABLE IF NOT EXISTS user_behavior (
   id SERIAL PRIMARY KEY,
-  category TEXT UNIQUE NOT NULL,
-  limit_amount DECIMAL(10,2) NOT NULL,
-  spent DECIMAL(10,2) DEFAULT 0,
-  created_at TIMESTAMP DEFAULT NOW()
+  user_id UUID,
+  personality TEXT,
+  pattern TEXT,
+  updated_at TIMESTAMP DEFAULT NOW()
 );
 
--- Note: To enable real-time updates for the frontend dashboard:
--- Run the following commands in the SQL editor as well:
-alter publication supabase_realtime add table transactions;
-alter publication supabase_realtime add table budgets;
+-- 3. Expose new tables to Realtime (optional but recommended for UX)
+comment on table ai_insights is 'AI generated insights';
+comment on table user_behavior is 'AI analyzed spending persona';
+alter publication supabase_realtime add table ai_insights;
+alter publication supabase_realtime add table user_behavior;

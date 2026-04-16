@@ -2,19 +2,15 @@ require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
 const { createClient } = require('@supabase/supabase-js');
-const OpenAI = require('openai');
+const { parseSMS, generateInsights, analyzeBehavior, chatAssistant } = require('./services/geminiService');
 
 const app = express();
 const port = process.env.PORT || 5000;
 
-// Supabase and OpenAI config
+// Supabase config
 const supabaseUrl = process.env.SUPABASE_URL || 'https://placeholder-url.supabase.co';
 const supabaseKey = process.env.SUPABASE_KEY || 'placeholder-anon-key';
 const supabase = createClient(supabaseUrl, supabaseKey);
-
-const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY || 'placeholder-key',
-});
 
 // Middleware
 app.use(cors());
@@ -25,101 +21,126 @@ app.get('/api/health', (req, res) => {
   res.json({ status: 'API is running' });
 });
 
-// Transactions
+// Transactions & Budgets (Legacy basic endpoints)
 app.get('/api/transactions', async (req, res) => {
-  try {
-    const { data, error } = await supabase
-      .from('transactions')
-      .select('*')
-      .order('date', { ascending: false });
-    if (error) throw error;
-    res.json(data || []);
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
+  const { data, error } = await supabase.from('transactions').select('*').order('date', { ascending: false });
+  res.json(data || []);
 });
-
-app.post('/api/transactions', async (req, res) => {
-  try {
-    const { amount, merchant, category, date, type } = req.body;
-    const { data, error } = await supabase
-      .from('transactions')
-      .insert([{ amount, merchant, category, date, type }])
-      .select()
-      .single();
-    if (error) throw error;
-    res.json(data);
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
-});
-
-// Budgets
 app.get('/api/budgets', async (req, res) => {
+  const { data, error } = await supabase.from('budgets').select('*');
+  res.json(data || []);
+});
+
+// ============================================
+// GEMINI EXTENSION MODULES (AI + CORE)
+// ============================================
+
+/**
+ * 1. Demo SMS Transaction Loading
+ * Intercepts hardcoded text arrays and parses them with Gemini
+ */
+app.post('/api/load-demo-sms', async (req, res) => {
   try {
-    const { data, error } = await supabase
-      .from('budgets')
-      .select('*');
-    if (error) throw error;
-    res.json(data || []);
+    const defaultSms = [
+      "Rs.500 debited at Amazon on 14-Apr-2026",
+      "Rs.250 spent on Swiggy on 15-Apr-2026",
+      "Rs.1200 paid to Uber on 16-Apr-2026",
+      "Rs.800 electricity bill deducted to BESCOM on 16-Apr-2026"
+    ];
+
+    const messagesToProcess = req.body.messages || defaultSms;
+    const processedTxns = [];
+
+    for (let sms of messagesToProcess) {
+      const parsed = await parseSMS(sms);
+      
+      // Store in DB context
+      const { data, error } = await supabase.from('transactions').insert([{
+        amount: parsed.amount,
+        merchant: parsed.merchant,
+        category: parsed.category,
+        type: parsed.type,
+        source: 'demo_sms',
+        confidence: parsed.confidence,
+        date: new Date().toISOString()
+      }]).select().single();
+      
+      if (!error && data) {
+         processedTxns.push(data);
+      }
+    }
+
+    res.json({ message: "Demo SMS Processed", inserted: processedTxns.length, transactions: processedTxns });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
 });
 
-app.post('/api/budgets', async (req, res) => {
+/**
+ * 2. Get Dashboard Data + Insights
+ * Aggregates DB transactions and dynamically fetches AI health reports
+ */
+app.get('/api/dashboard', async (req, res) => {
   try {
-    const { category, limit } = req.body;
-    const { data, error } = await supabase
-      .from('budgets')
-      .insert([{ category, limit, spent: 0 }])
-      .select()
-      .single();
-    if (error) throw error;
-    res.json(data);
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
-});
-
-// Parse SMS
-app.post('/api/parse-sms', async (req, res) => {
-  try {
-    const { sms } = req.body;
-    const completion = await openai.chat.completions.create({
-      model: 'gpt-4o-mini',
-      messages: [{
-        role: 'system',
-        content: `Parse this SMS and extract: amount (number), merchant (string), date (ISO), type (debit/credit).
-Respond JSON only like: {"amount":1234,"merchant":"ZOMATO","date":"2025-04-14","type":"debit"}`
-      }, {
-        role: 'user',
-        content: sms
-      }]
-    });
-    const parsed = JSON.parse(completion.choices[0].message.content);
-    res.json(parsed);
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
-});
-
-// Budget Alerts
-app.get('/api/alerts', async (req, res) => {
-  try {
-    const { data: txns } = await supabase.from('transactions').select('amount, category, date');
-    const { data: budgets } = await supabase.from('budgets').select('category, limit');
-    const alerts = [];
-    const spent = {};
-    txns?.forEach(t => {
-      spent[t.category] = (spent[t.category] || 0) + t.amount;
-    });
-    budgets?.forEach(b => {
-      if ((spent[b.category] || 0) > b.limit * 0.8) {
-        alerts.push({ category: b.category, spent: spent[b.category], limit: b.limit });
+    const { data: txns } = await supabase.from('transactions').select('*');
+    const { data: budgets } = await supabase.from('budgets').select('*');
+    
+    // Aggregations
+    const totalSpend = (txns || []).filter(t => t.type === 'debit').reduce((sum, t) => sum + Number(t.amount), 0);
+    
+    let categoryBreakdown = {};
+    (txns || []).forEach(t => {
+      if (t.type === 'debit') {
+         categoryBreakdown[t.category] = (categoryBreakdown[t.category] || 0) + Number(t.amount);
       }
     });
-    res.json(alerts);
+
+    // Invoke Gemini AI explicitly for health score
+    let healthScore = {};
+    let personalityData = {};
+    
+    if (txns && txns.length > 0) {
+      healthScore = await generateInsights(categoryBreakdown, budgets);
+      personalityData = await analyzeBehavior(txns);
+      
+      // Persist insights
+      if (healthScore) {
+         await supabase.from('ai_insights').insert([{
+            type: 'insight',
+            message: healthScore.spending_insights || '',
+            risk_level: healthScore.risk_level || 'low'
+         }]);
+      }
+    }
+
+    res.json({
+      totalSpending: totalSpend,
+      categoryBreakdown,
+      recentTransactions: (txns || []).slice(0,5),
+      aiInsights: healthScore,
+      behavior: personalityData
+    });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+/**
+ * 3. AI Chat Assistant
+ * Context-aware dynamic LLM routing
+ */
+app.post('/api/ask-ai', async (req, res) => {
+  try {
+    const { prompt } = req.body;
+    
+    // Grab user context to ground the LLM
+    const { data: txns } = await supabase.from('transactions').select('amount,merchant,category').limit(10);
+    const { data: budgets } = await supabase.from('budgets').select('category,limit_amount');
+    
+    const context = { recentPurchases: txns, budgets };
+    const responseText = await chatAssistant(prompt, context);
+    
+    res.json({ reply: responseText });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
@@ -127,5 +148,5 @@ app.get('/api/alerts', async (req, res) => {
 
 // Start Server
 app.listen(port, () => {
-  console.log(`FINSIM Backend listening on port ${port}`);
+  console.log(`FINSIM Gemini Backend listening on port ${port}`);
 });

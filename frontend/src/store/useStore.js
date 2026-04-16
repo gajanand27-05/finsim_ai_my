@@ -1,99 +1,71 @@
 import { create } from 'zustand';
+import { supabase } from '../services/supabaseClient';
 
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
-
-export const useStore = create((set) => ({
+export const useStore = create((set, get) => ({
   user: null,
   transactions: [],
-  budgetStatus: {},
+  budgets: [],
   alerts: [],
-  loading: false,
-
-  setUser: (user) => set({ user }),
-
-  fetchTransactions: async () => {
+  loading: true,
+  
+  initData: async () => {
     set({ loading: true });
-    try {
-      const res = await fetch(`${API_URL}/api/transactions`);
-      const data = await res.json();
-      set({ transactions: data, loading: false });
-    } catch (err) {
-      console.error('Failed to fetch transactions:', err);
-      set({ loading: false });
+    // Fetch initial limits
+    const { data: budgetsData } = await supabase.from('budgets').select('*');
+    if (budgetsData) set({ budgets: budgetsData });
+
+    // Fetch initial transactions
+    let { data: txnsData } = await supabase
+       .from('transactions')
+       .select('*')
+       .order('created_at', { ascending: false });
+       
+    // fallback if no connection or error
+    if (txnsData) {
+      set({ transactions: txnsData });
     }
+
+    // Subscribe to real-time changes
+    supabase.channel('public:transactions')
+      .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'transactions' }, (payload) => {
+        const newTxn = payload.new;
+        set((state) => ({ transactions: [newTxn, ...state.transactions] }));
+        get().processPreSpendWarning(newTxn);
+      })
+      .subscribe();
+      
+    set({ loading: false });
   },
 
-  addTransaction: async (txn) => {
-    try {
-      const res = await fetch(`${API_URL}/api/transactions`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(txn)
-      });
-      const newTxn = await res.json();
-      set((state) => ({ transactions: [newTxn, ...state.transactions] }));
-    } catch (err) {
-      console.error('Failed to add transaction:', err);
-    }
+  processPreSpendWarning: (newTxn) => {
+      const state = get();
+      const catBudget = state.budgets.find(b => b.category === newTxn.category);
+      if (!catBudget) return;
+
+      const totalSpentForCat = state.transactions
+         .filter(t => t.category === newTxn.category && t.type === 'debit')
+         .reduce((acc, t) => acc + Number(t.amount), 0);
+
+      if (totalSpentForCat > catBudget.limit_amount) {
+         state.triggerAlert({
+            id: Date.now(),
+            severity: 3,
+            message: `⛔ Danger! A transaction of ₹${newTxn.amount} at ${newTxn.merchant} pushed you OVER your ${newTxn.category} budget limit of ₹${catBudget.limit_amount}!`
+         });
+      } else if (totalSpentForCat > (catBudget.limit_amount * 0.8)) {
+         state.triggerAlert({
+            id: Date.now(),
+            severity: 2,
+            message: `⚠️ Warning! You've now consumed >80% of your ${newTxn.category} budget.`
+         });
+      }
   },
 
-  fetchBudgets: async () => {
-    try {
-      const res = await fetch(`${API_URL}/api/budgets`);
-      const budgets = await res.json();
-      const status = {};
-      budgets.forEach(b => { status[b.category] = { spent: b.spent || 0, limit: b.limit }; });
-      set({ budgetStatus: status });
-    } catch (err) {
-      console.error('Failed to fetch budgets:', err);
-    }
-  },
-
-  addBudget: async (category, limit) => {
-    try {
-      const res = await fetch(`${API_URL}/api/budgets`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ category, limit })
-      });
-      const newBudget = await res.json();
-      set((state) => ({
-        budgetStatus: { ...state.budgetStatus, [newBudget.category]: { spent: 0, limit: newBudget.limit } }
-      }));
-    } catch (err) {
-      console.error('Failed to add budget:', err);
-    }
-  },
-
-  fetchAlerts: async () => {
-    try {
-      const res = await fetch(`${API_URL}/api/alerts`);
-      const alerts = await res.json();
-      set({ alerts });
-    } catch (err) {
-      console.error('Failed to fetch alerts:', err);
-    }
-  },
-
-  parseSMS: async (sms) => {
-    try {
-      const res = await fetch(`${API_URL}/api/parse-sms`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ sms })
-      });
-      return await res.json();
-    } catch (err) {
-      console.error('Failed to parse SMS:', err);
-      return null;
-    }
-  },
-
-  triggerAlert: (alert) => set((state) => ({
-    alerts: [alert, ...state.alerts]
+  triggerAlert: (alert) => set((state) => ({ 
+    alerts: [alert, ...state.alerts] 
   })),
-
+  
   dismissAlert: (id) => set((state) => ({
-    alerts: state.alerts.filter((a, i) => i !== id)
+    alerts: state.alerts.filter((a) => a.id !== id)
   }))
 }));

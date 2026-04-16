@@ -1,6 +1,7 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom';
 import { Activity, LayoutDashboard, Settings, FileText } from 'lucide-react';
+import { useStore } from './store/useStore';
 
 import DashboardPage from './pages/DashboardPage';
 import LedgerPage from './pages/LedgerPage';
@@ -9,6 +10,11 @@ import InsightsPage from './pages/InsightsPage';
 const SettingsPage = () => <div className="container mt-8"><h1 className="text-2xl">Settings</h1></div>;
 
 function App() {
+  const initData = useStore(state => state.initData);
+  
+  useEffect(() => {
+     initData();
+  }, [initData]);
   return (
     <Router>
       <nav style={{ borderBottom: '1px solid var(--border-light)', padding: '16px 0', background: 'var(--bg-panel)' }}>

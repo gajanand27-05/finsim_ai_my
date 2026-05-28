@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { PieChart, Pie, Cell, AreaChart, Area, XAxis, YAxis, Tooltip, ResponsiveContainer } from 'recharts';
 import { Activity, AlertTriangle, ShieldCheck, Zap, BrainCircuit, RefreshCw, Target, TrendingUp } from 'lucide-react';
 import AIChatPanel from '../components/AIChatPanel';
+import TransactionModal from '../components/TransactionModal';
 
 const COLORS = ['#3b82f6', '#8b5cf6', '#10b981', '#f59e0b', '#ef4444'];
 

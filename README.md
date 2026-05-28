@@ -37,8 +37,8 @@ Here is a glimpse of the FINSIM AI+ intelligence engine in action:
     <td align="center"><b>Deep Behavioral Insights</b></td>
   </tr>
   <tr>
-    <td><img src="https://via.placeholder.com/600x350/0f172a/38bdf8?text=+Live+Spending+Velocity+%26+Goals+" alt="Dashboard Preview"></td>
-    <td><img src="https://via.placeholder.com/600x350/0f172a/818cf8?text=+AI+Persona+%26+Risk+Assessment+" alt="Insights Preview"></td>
+    <td><img src="https://placehold.co/600x350/0f172a/38bdf8?text=Live+Spending+Velocity+%26+Goals" alt="Dashboard Preview"></td>
+    <td><img src="https://placehold.co/600x350/0f172a/818cf8?text=AI+Persona+%26+Risk+Assessment" alt="Insights Preview"></td>
   </tr>
 </table>
 

@@ -9,14 +9,31 @@ import InsightsPage from './pages/InsightsPage';
 import SettingsPage from './pages/SettingsPage';
 
 function App() {
+  const [error, setError] = React.useState(null);
   const initData = useStore(state => state.initData);
   const isServerOnline = useStore(state => state.isServerOnline);
   const alerts = useStore(state => state.alerts);
   const dismissAlert = useStore(state => state.dismissAlert);
   
   useEffect(() => {
-     initData();
+    try {
+      initData();
+    } catch (e) {
+      console.error("Init failed", e);
+      setError(e.message);
+    }
   }, [initData]);
+
+  if (error) {
+    return (
+      <div className="min-h-screen bg-slate-950 text-red-500 flex items-center justify-center p-8">
+        <div className="max-w-md bg-red-500/10 border border-red-500/20 p-6 rounded-2xl">
+          <h1 className="text-xl font-bold mb-2">Runtime Error</h1>
+          <p className="text-sm font-mono bg-black/40 p-4 rounded-xl">{error}</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <Router>

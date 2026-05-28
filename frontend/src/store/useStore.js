@@ -82,5 +82,15 @@ export const useStore = create((set, get) => ({
   
   dismissAlert: (id) => set((state) => ({
     alerts: state.alerts.filter((a) => a.id !== id)
-  }))
+  })),
+
+  addTransaction: async (txn) => {
+    const { data, error } = await supabase.from('transactions').insert([txn]).select().single();
+    if (!error && data) {
+      set((state) => ({ transactions: [data, ...state.transactions] }));
+      get().processPreSpendWarning(data);
+      return { success: true, data };
+    }
+    return { success: false, error };
+  }
 }));

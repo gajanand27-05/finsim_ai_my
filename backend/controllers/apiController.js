@@ -1,5 +1,5 @@
 const { supabase } = require('../utils/db');
-const { parseSMS, generateInsights, analyzeBehavior } = require('../services/geminiService');
+const { parseSMS, generateInsights, analyzeBehavior, analyzeLedger } = require('../services/geminiService');
 const { askLocalAI } = require('../services/localAI');
 
 exports.healthCheck = (req, res) => {
@@ -17,28 +17,60 @@ exports.getBudgets = async (req, res) => {
 };
 
 /**
+ * Advanced Ledger Analysis Controller
+ */
+exports.getLedgerAnalysis = async (req, res) => {
+  try {
+    const { data: txns } = await supabase.from('transactions').select('*').order('date', { ascending: false });
+    
+    if (!txns || txns.length === 0) {
+      return res.json({
+        ghost_subscriptions: [],
+        integrity_score: 100,
+        anomalies: [],
+        health_summary: "No transactions found to analyze."
+      });
+    }
+
+    const analysis = await analyzeLedger(txns);
+    res.json(analysis);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+};
+
+/**
  * Parses dummy SMS arrays, delegates strict JSON extraction to Gemini,
  * falls back to regex if Gemini fails/struggles, constructs records.
  */
 exports.loadDemoSms = async (req, res) => {
   try {
     const defaultSms = [
-      "Rs.500 debited at Amazon",
-      "Rs.250 spent on Swiggy",
-      "Rs.1200 paid to Uber",
-      "Rs.800 electricity bill"
+      { text: "Rs.500 debited at Amazon", date: new Date() },
+      { text: "Rs.250 spent on Swiggy", date: new Date() },
+      { text: "Rs.1200 paid to Uber", date: new Date() },
+      { text: "Rs.800 electricity bill", date: new Date() },
+      { text: "Rs.199 Netflix subscription", date: new Date() },
+      { text: "Rs.199 Netflix subscription", date: new Date(new Date().setMonth(new Date().getMonth() - 1)) },
+      { text: "Rs.199 Netflix subscription", date: new Date(new Date().setMonth(new Date().getMonth() - 2)) },
+      { text: "Rs.45000 salary credited", date: new Date() },
+      { text: "Rs.1500 Gym Membership", date: new Date() },
+      { text: "Rs.1500 Gym Membership", date: new Date(new Date().setMonth(new Date().getMonth() - 1)) },
+      { text: "Rs.5000 rent paid", date: new Date() }
     ];
 
     const messagesToProcess = req.body.messages || defaultSms;
     const processedTxns = [];
 
-    for (let sms of messagesToProcess) {
+    for (let item of messagesToProcess) {
+      const sms = typeof item === 'string' ? item : item.text;
+      const date = typeof item === 'string' ? new Date().toISOString() : item.date.toISOString();
+      
       const parsed = await parseSMS(sms);
       
       // Validation & Fallback Guardrails (Mandatory)
       let txnRecord = parsed;
       if (parsed.confidence < 0.7 || !parsed.amount || !parsed.merchant) {
-         console.warn(`[Gemini Fallback] Applying rigorous validation on missing fields:`, parsed);
          txnRecord.amount = parsed.amount || (sms.match(/[0-9]+/) ? parseFloat(sms.match(/[0-9]+/)[0]) : 0);
          txnRecord.merchant = parsed.merchant || "Unknown Outlet";
       }
@@ -50,7 +82,7 @@ exports.loadDemoSms = async (req, res) => {
         type: txnRecord.type,
         source: 'demo_sms',
         confidence: txnRecord.confidence,
-        date: new Date().toISOString()
+        date: date
       }]).select().single();
       
       if (!error && data) {
@@ -131,8 +163,14 @@ exports.askAi = async (req, res) => {
        Provide a concise 2-sentence conversational answer.
     `;
     
-    // HYBRID ROUTING: Route directly to local edge Ollama
-    const responseText = await askLocalAI(contextualPrompt, 'llama3');
+    // HYBRID ROUTING: Try local edge Ollama first, fallback to Gemini
+    let responseText = await askLocalAI(contextualPrompt, 'llama3');
+    
+    if (responseText.includes("Local AI is currently offline")) {
+       console.log("[Hybrid Routing] Falling back to Gemini for chat...");
+       const { chatAssistant } = require('../services/geminiService');
+       responseText = await chatAssistant(prompt, txns);
+    }
     
     res.json({ reply: responseText });
   } catch (err) {

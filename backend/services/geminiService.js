@@ -108,6 +108,41 @@ async function analyzeBehavior(transactions) {
 }
 
 /**
+ * Advanced Ledger Analysis
+ * Scans for recurring payments, anomalies, and cash-flow integrity.
+ */
+async function analyzeLedger(transactions) {
+  try {
+    const dataStr = JSON.stringify(transactions);
+    const prompt = `
+      Analyze the following transaction list for a professional financial audit.
+      Extract:
+      1. Potential recurring "Ghost Subscriptions" (same merchant, similar amount, recurring monthly).
+      2. Cash-flow integrity score (0-100) based on stability.
+      3. Detected anomalies (unusual spikes or unfamiliar merchants).
+      4. Summary of health.
+
+      Transactions: ${dataStr}
+
+      Return strict JSON:
+      {
+        "ghost_subscriptions": [{ "name": string, "amount": number, "frequency": string, "risk": "Low" | "Medium" | "High" }],
+        "integrity_score": number,
+        "anomalies": [{ "merchant": string, "amount": number, "reason": string }],
+        "health_summary": string
+      }
+    `;
+
+    const result = await model.generateContent(prompt);
+    const text = result.response.text().replace(/```json/g, '').replace(/```/g, '').trim();
+    return JSON.parse(text);
+  } catch (error) {
+    console.error("Ledger analysis failed:", error);
+    return null;
+  }
+}
+
+/**
  * Smart natural language chat assistant
  */
 async function chatAssistant(userPrompt, contextData) {
@@ -131,5 +166,6 @@ module.exports = {
   parseSMS,
   generateInsights,
   analyzeBehavior,
+  analyzeLedger,
   chatAssistant
 };

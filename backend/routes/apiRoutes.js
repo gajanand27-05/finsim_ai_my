@@ -5,6 +5,7 @@ const apiController = require('../controllers/apiController');
 router.get('/health', apiController.healthCheck);
 router.get('/transactions', apiController.getTransactions);
 router.get('/budgets', apiController.getBudgets);
+router.get('/ledger-analysis', apiController.getLedgerAnalysis);
 
 // Core Hybrid API Routes
 router.post('/load-demo-sms', apiController.loadDemoSms);

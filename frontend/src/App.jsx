@@ -6,16 +6,7 @@ import { useStore } from './store/useStore';
 import DashboardPage from './pages/DashboardPage';
 import LedgerPage from './pages/LedgerPage';
 import InsightsPage from './pages/InsightsPage';
-
-const SettingsPage = () => (
-  <div className="container mx-auto px-4 py-12 max-w-4xl">
-    <div className="glass-panel text-center p-12">
-      <Settings className="mx-auto text-slate-500 mb-6" size={48} />
-      <h1 className="text-3xl font-black text-slate-100 mb-4">System Settings</h1>
-      <p className="text-slate-400">Configure your data sources and AI preferences.</p>
-    </div>
-  </div>
-);
+import SettingsPage from './pages/SettingsPage';
 
 function App() {
   const initData = useStore(state => state.initData);

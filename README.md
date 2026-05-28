@@ -31,16 +31,9 @@ FINSIM AI+ isn't just a budget tracker; it's a proactive financial strategist. B
 
 Here is a glimpse of the FINSIM AI+ intelligence engine in action:
 
-<table>
-  <tr>
-    <td align="center"><b>The Financial Pulse (Dashboard)</b></td>
-    <td align="center"><b>Deep Behavioral Insights</b></td>
-  </tr>
-  <tr>
-    <td><img src="https://placehold.co/600x350/0f172a/38bdf8?text=Live+Spending+Velocity+%26+Goals" alt="Dashboard Preview"></td>
-    <td><img src="https://placehold.co/600x350/0f172a/818cf8?text=AI+Persona+%26+Risk+Assessment" alt="Insights Preview"></td>
-  </tr>
-</table>
+| The Financial Pulse (Dashboard) | Deep Behavioral Insights |
+| :---: | :---: |
+| ![Dashboard Preview](https://placehold.co/600x400/0f172a/38bdf8.png?text=Dashboard+Preview) | ![Insights Preview](https://placehold.co/600x400/0f172a/818cf8.png?text=Insights+Preview) |
 
 > *"At your current savings rate, you will reach your Emergency Fund goal in 4 months. Consider reducing 'Entertainment' spend to accelerate by 22 days." — **FINSIM AI***
 

@@ -92,5 +92,23 @@ export const useStore = create((set, get) => ({
       return { success: true, data };
     }
     return { success: false, error };
+  },
+
+  updateBudget: async (category, limit) => {
+    const { data, error } = await supabase
+      .from('budgets')
+      .upsert({ category, limit_amount: limit })
+      .select()
+      .single();
+    
+    if (!error && data) {
+      set((state) => ({
+        budgets: state.budgets.some(b => b.category === category)
+          ? state.budgets.map(b => b.category === category ? data : b)
+          : [...state.budgets, data]
+      }));
+      return { success: true };
+    }
+    return { success: false, error };
   }
 }));

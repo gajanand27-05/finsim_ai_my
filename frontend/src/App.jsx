@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { BrowserRouter as Router, Routes, Route, NavLink } from 'react-router-dom';
 import { Activity, LayoutDashboard, Settings, FileText, Bell, Sparkles } from 'lucide-react';
 import { useStore } from './store/useStore';
@@ -9,28 +9,29 @@ import InsightsPage from './pages/InsightsPage';
 import SettingsPage from './pages/SettingsPage';
 
 function App() {
-  const [error, setError] = React.useState(null);
+  console.log("🛠️ App Component: Rendering");
+  const [initError, setInitError] = useState(null);
+  
   const initData = useStore(state => state.initData);
   const isServerOnline = useStore(state => state.isServerOnline);
   const alerts = useStore(state => state.alerts);
   const dismissAlert = useStore(state => state.dismissAlert);
   
   useEffect(() => {
+    console.log("🔄 App Effect: Initializing data...");
     try {
       initData();
+      console.log("✅ App Effect: initData called successfully");
     } catch (e) {
-      console.error("Init failed", e);
-      setError(e.message);
+      console.error("❌ App Effect Error:", e);
+      setInitError(e.message);
     }
   }, [initData]);
 
-  if (error) {
+  if (initError) {
     return (
-      <div className="min-h-screen bg-slate-950 text-red-500 flex items-center justify-center p-8">
-        <div className="max-w-md bg-red-500/10 border border-red-500/20 p-6 rounded-2xl">
-          <h1 className="text-xl font-bold mb-2">Runtime Error</h1>
-          <p className="text-sm font-mono bg-black/40 p-4 rounded-xl">{error}</p>
-        </div>
+      <div className="bg-red-900 text-white p-10 font-bold">
+        CRASH DETECTED: {initError}
       </div>
     );
   }
@@ -52,7 +53,7 @@ function App() {
               <div className="w-10 h-10 bg-gradient-to-br from-sky-400 to-indigo-500 rounded-xl flex items-center justify-center shadow-lg shadow-sky-500/20">
                  <Activity className="text-white" size={24} />
               </div>
-              <span className="font-black text-xl gradient-text hidden sm:block">FINSIM AI+</span>
+              <span className="font-black text-xl gradient-text hidden sm:block text-slate-100">FINSIM AI+</span>
             </div>
 
             <div className="flex items-center gap-1 md:gap-4">
@@ -72,40 +73,12 @@ function App() {
             </div>
 
             <div className="flex items-center gap-4">
-              <div className="relative cursor-pointer group">
-                 <Bell size={20} className="text-slate-400 group-hover:text-slate-200 transition-colors" />
-                 {alerts.length > 0 && (
-                   <span className="absolute -top-1 -right-1 w-2 h-2 bg-red-500 rounded-full border-2 border-slate-900 animate-ping"></span>
-                 )}
-              </div>
-              <div className="hidden sm:flex flex-col items-end">
-                <span className="text-[10px] font-black text-slate-500 uppercase tracking-tighter">Premium Access</span>
-                <span className="text-xs font-bold text-slate-200">User_2705</span>
-              </div>
               <div className="w-10 h-10 rounded-full bg-slate-800 border border-white/5 overflow-hidden">
                 <img src={`https://api.dicebear.com/7.x/avataaars/svg?seed=Gaj`} alt="avatar" />
               </div>
             </div>
           </nav>
         </header>
-
-        {/* Global Alert Notification Toast */}
-        <div className="fixed bottom-24 right-8 z-50 flex flex-col gap-3 max-w-sm pointer-events-none">
-          {alerts.map((alert) => (
-            <div key={alert.id} className="pointer-events-auto bg-slate-900/90 backdrop-blur-xl border border-white/10 p-4 rounded-2xl shadow-2xl animate-in slide-in-from-right duration-300">
-               <div className="flex gap-4">
-                  <div className={`p-2 rounded-lg ${alert.severity === 3 ? 'bg-red-500/20 text-red-400' : 'bg-amber-500/20 text-amber-400'}`}>
-                    <Bell size={18} />
-                  </div>
-                  <div>
-                    <p className="text-xs font-bold text-slate-100 mb-1">{alert.severity === 3 ? 'CRITICAL ALERT' : 'SYSTEM UPDATE'}</p>
-                    <p className="text-xs text-slate-400 leading-relaxed">{alert.message}</p>
-                    <button onClick={() => dismissAlert(alert.id)} className="mt-3 text-[10px] font-black text-slate-500 hover:text-slate-300 uppercase tracking-widest">Dismiss</button>
-                  </div>
-               </div>
-            </div>
-          ))}
-        </div>
 
         <main>
           <Routes>

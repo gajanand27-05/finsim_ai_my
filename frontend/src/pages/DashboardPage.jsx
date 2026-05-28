@@ -9,6 +9,7 @@ export default function DashboardPage() {
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [transactions, setTransactions] = useState([]);
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   const fetchDashboard = async () => {
     setLoading(true);
@@ -93,14 +94,20 @@ export default function DashboardPage() {
             <p className="text-slate-400 mt-1">Real-time AI behavioral tracking</p>
          </div>
          <div className="flex gap-3">
+            <button onClick={() => setIsModalOpen(true)} className="flex items-center gap-2 px-4 py-2 bg-sky-500 hover:bg-sky-400 text-white rounded-xl text-sm font-bold transition-all shadow-lg shadow-sky-500/20">
+               <Plus size={20} /> Add Entry
+            </button>
             <button onClick={fetchDashboard} className="p-2 bg-slate-800 hover:bg-slate-700 text-slate-400 rounded-lg transition-colors border border-slate-700">
                <RefreshCw size={20} />
             </button>
-            <button onClick={loadDemoSms} className="flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-500 text-white rounded-lg text-sm font-bold transition-all shadow-lg shadow-blue-500/20">
-               Inject Demo SMS Data
+            <button onClick={loadDemoSms} className="flex items-center gap-2 px-4 py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-lg text-sm font-bold transition-all border border-slate-700">
+               Inject Demo Log
             </button>
          </div>
       </div>
+      
+      {/* Transaction Modal Integration */}
+      <TransactionModal isOpen={isModalOpen} onClose={() => { setIsModalOpen(false); fetchDashboard(); }} />
       
       {/* Metrics Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">

@@ -33,7 +33,7 @@ Here is a glimpse of the FINSIM AI+ intelligence engine in action:
 
 | The Financial Pulse (Dashboard) | Deep Behavioral Insights |
 | :---: | :---: |
-| ![Dashboard Preview](https://placehold.co/600x400/0f172a/38bdf8.png?text=Dashboard+Preview) | ![Insights Preview](https://placehold.co/600x400/0f172a/818cf8.png?text=Insights+Preview) |
+| ![Dashboard Preview](docs/previews/dashboard_preview.svg) | ![Insights Preview](docs/previews/insights_preview.svg) |
 
 > *"At your current savings rate, you will reach your Emergency Fund goal in 4 months. Consider reducing 'Entertainment' spend to accelerate by 22 days." — **FINSIM AI***
 

@@ -1,0 +1,77 @@
+<svg width="1200" height="800" viewBox="0 0 1200 800" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="1200" height="800" fill="#020617"/>
+  <circle cx="0" cy="0" r="400" fill="#0ea5e9" fill-opacity="0.05"/>
+  <circle cx="1200" cy="0" r="400" fill="#6366f1" fill-opacity="0.05"/>
+  
+  <!-- Header -->
+  <text x="60" y="80" fill="#f8fafc" font-family="sans-serif" font-size="36" font-weight="900">Financial Pulse</text>
+  <text x="60" y="110" fill="#64748b" font-family="sans-serif" font-size="16" font-weight="600">Real-time AI behavioral tracking engine</text>
+  
+  <rect x="1000" y="60" width="140" height="40" rx="10" fill="#0ea5e9"/>
+  <text x="1030" y="85" fill="white" font-family="sans-serif" font-size="14" font-weight="bold">+ Add Entry</text>
+
+  <!-- Metric Cards -->
+  <g transform="translate(60, 160)">
+    <rect width="255" height="140" rx="20" fill="#0f172a" stroke="white" stroke-opacity="0.05"/>
+    <text x="20" y="30" fill="#64748b" font-family="sans-serif" font-size="10" font-weight="900">MONTHLY OUTFLOW</text>
+    <text x="20" y="75" fill="#f8fafc" font-family="sans-serif" font-size="28" font-weight="900">₹42,850</text>
+    <text x="20" y="105" fill="#64748b" font-family="sans-serif" font-size="11" font-weight="600">12 active transactions detected</text>
+  </g>
+  
+  <g transform="translate(345, 160)">
+    <rect width="255" height="140" rx="20" fill="#0f172a" stroke="white" stroke-opacity="0.05"/>
+    <text x="20" y="30" fill="#64748b" font-family="sans-serif" font-size="10" font-weight="900">SAVINGS RATE</text>
+    <text x="20" y="75" fill="#f8fafc" font-family="sans-serif" font-size="28" font-weight="900">32%</text>
+    <rect x="85" y="55" width="30" height="16" rx="4" fill="#10b981" fill-opacity="0.1"/>
+    <text x="92" y="67" fill="#10b981" font-family="sans-serif" font-size="10" font-weight="900">↑</text>
+    <text x="20" y="105" fill="#64748b" font-family="sans-serif" font-size="11" font-weight="600">Exceeding market average</text>
+  </g>
+
+  <g transform="translate(630, 160)">
+    <rect width="255" height="140" rx="20" fill="#0f172a" stroke="white" stroke-opacity="0.05"/>
+    <text x="20" y="30" fill="#64748b" font-family="sans-serif" font-size="10" font-weight="900">AI PERSONALITY</text>
+    <text x="20" y="75" fill="#f8fafc" font-family="sans-serif" font-size="28" font-weight="900">Weekend Warrior</text>
+    <text x="20" y="105" fill="#64748b" font-family="sans-serif" font-size="11" font-weight="600">Processing behavioral data points</text>
+  </g>
+
+  <g transform="translate(915, 160)">
+    <rect width="225" height="140" rx="20" fill="#0f172a" stroke="white" stroke-opacity="0.05"/>
+    <text x="20" y="30" fill="#64748b" font-family="sans-serif" font-size="10" font-weight="900">RISK PROFILE</text>
+    <text x="20" y="75" fill="#f8fafc" font-family="sans-serif" font-size="28" font-weight="900">LOW</text>
+    <text x="20" y="105" fill="#64748b" font-family="sans-serif" font-size="11" font-weight="600">No immediate risks identified</text>
+  </g>
+
+  <!-- Main Charts Area -->
+  <g transform="translate(60, 330)">
+    <rect width="735" height="420" rx="24" fill="#0f172a" fill-opacity="0.4" stroke="white" stroke-opacity="0.05"/>
+    <text x="30" y="45" fill="#f8fafc" font-family="sans-serif" font-size="18" font-weight="bold">Spending Velocity</text>
+    
+    <!-- Chart Mockup -->
+    <path d="M60 350 L120 280 L180 310 L240 220 L300 250 L360 180 L420 200 L480 120 L540 150 L600 80 L660 110" stroke="#0ea5e9" stroke-width="4" fill="none" transform="translate(20, -20)"/>
+    <path d="M60 350 L120 280 L180 310 L240 220 L300 250 L360 180 L420 200 L480 120 L540 150 L600 80 L660 110 V350 H60 Z" fill="url(#grad)" fill-opacity="0.2" transform="translate(20, -20)"/>
+    <defs>
+      <linearGradient id="grad" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0%" stop-color="#0ea5e9"/>
+        <stop offset="100%" stop-color="#0ea5e9" stop-opacity="0"/>
+      </linearGradient>
+    </defs>
+  </g>
+
+  <g transform="translate(815, 330)">
+    <rect width="325" height="420" rx="24" fill="#0f172a" fill-opacity="0.4" stroke="white" stroke-opacity="0.05"/>
+    <text x="30" y="45" fill="#f8fafc" font-family="sans-serif" font-size="18" font-weight="bold">Allocation Mix</text>
+    <circle cx="162" cy="180" r="70" stroke="#1e293b" stroke-width="25" fill="none"/>
+    <circle cx="162" cy="180" r="70" stroke="#0ea5e9" stroke-width="25" fill="none" stroke-dasharray="250 190" stroke-dashoffset="60"/>
+    <circle cx="162" cy="180" r="70" stroke="#6366f1" stroke-width="25" fill="none" stroke-dasharray="100 340" stroke-dashoffset="310"/>
+    
+    <g transform="translate(30, 280)">
+      <circle cx="0" cy="0" r="5" fill="#0ea5e9"/>
+      <text x="15" y="4" fill="#64748b" font-family="sans-serif" font-size="12" font-weight="bold">SHOPPING</text>
+      <text x="220" y="4" fill="#f8fafc" font-family="sans-serif" font-size="12" font-weight="bold">₹18,400</text>
+      
+      <circle cx="0" cy="30" r="5" fill="#6366f1"/>
+      <text x="15" y="34" fill="#64748b" font-family="sans-serif" font-size="12" font-weight="bold">FOOD</text>
+      <text x="220" y="34" fill="#f8fafc" font-family="sans-serif" font-size="12" font-weight="bold">₹12,200</text>
+    </g>
+  </g>
+</svg>
